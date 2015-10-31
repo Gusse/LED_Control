@@ -1,0 +1,20 @@
+LED_bar:
+    if adval_2 < 10 then
+            PortB = %11111110
+        elseIF  adval_2 < 55 then
+                PortB = %11011110
+            elseif adval_2 < 92 then
+                    PortB = %11001110
+                elseif adval_2 < 129 then
+                        PortB = %11000110
+                    elseif adval_2 < 166 then
+                            PortB = %01000110
+                        elseif adval_2 < 203 then
+                                PortB = %01000100
+                            elseif adval_2 < 240 then
+                                    PortB = %00000100
+                                else
+                                    PortB = %00000000
+    endif
+    high LED
+return

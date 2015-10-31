@@ -1,0 +1,7 @@
+Mainloop:
+    if LED_Timer_Stopped = 0 then
+            gosub Mainloop1
+        else
+            gosub Mainloop2
+    endif
+    goto Mainloop

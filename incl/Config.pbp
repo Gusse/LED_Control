@@ -1,0 +1,13 @@
+    Power_1Wire     var PortA.1
+    Wire_1          var PortA.2
+    Lcd_VCC         VAR PortA.3     'LCD Power
+    Up              VAR PortA.4     
+    Down            VAR PortA.5
+
+    Lcd_CS1         VAR PortC.0     'LCD Chip select 1
+    Lcd_SDA         VAR PortC.1     'LCD Data
+    LED             VAR PortC.3     'LED
+    Lcd_CS2         VAR PortC.4     'LCD Chip select 2 
+    Lcd_CLK         VAR PortC.5     'LCD Clock 
+    Lcd_DC          VAR PortC.6     'LCD Data/Command
+    Lcd_RST         VAR PortC.7     'LCD Reset

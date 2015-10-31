@@ -1,0 +1,146 @@
+Display_start:
+    Lower = 1
+    low Lcd_CS1 : High Lcd_CS2
+    for TEMP = 0 to 4
+        PosX=76:PosY=TEMP:Gosub Lcd_GotoXY
+        FC(0)=$FF
+        gosub Write_LCD_One
+        FC(0)=$01
+        gosub Write_LCD_One        
+    next TEMP
+    gosub Write_LCD_One            
+    PosX=78:PosY=0:Gosub Lcd_GotoXY
+    FC(0)=$40:FC(1)=$E0:FC(2)=$00:FC(3)=$80:FC(4)=$40:FC(5)=$E0
+    Gosub Write_LCD
+    PosX=78:PosY=1:Gosub Lcd_GotoXY
+    FC(0)=$40:FC(1)=$E7:FC(2)=$00:FC(3)=$21:FC(4)=$A1:FC(5)=$E7
+    Gosub Write_LCD
+    PosX=78:PosY=2:Gosub Lcd_GotoXY
+    FC(0)=$40:FC(1)=$E7:FC(2)=$00:FC(3)=$44:FC(4)=$24:FC(5)=$C7
+    Gosub Write_LCD
+    PosX=78:PosY=3:Gosub Lcd_GotoXY
+    FC(0)=$40:FC(1)=$E7:FC(2)=$00:FC(3)=$46:FC(4)=$E5:FC(5)=$04
+    Gosub Write_LCD
+    PosX=78:PosY=4:Gosub Lcd_GotoXY
+    FC(0)=$40:FC(1)=$E7:FC(2)=$00:FC(3)=$E4:FC(4)=$27:FC(5)=$E4
+    Gosub Write_LCD
+    PosX=78:PosY=5:Gosub Lcd_GotoXY
+    FC(0)=$00:FC(1)=$07:FC(2)=$00:FC(3)=$07:FC(4)=$04:FC(5)=$07
+    Gosub Write_LCD
+    High Lcd_CS1 : High Lcd_CS2
+    Lower = 0
+    return
+
+Display_Voltage_1:
+    Lower = 1
+    High Lcd_CS2 : LOW Lcd_CS1
+    Result = (150 * adval) /255
+    Result_Array[0] = Result
+    Time = 0    
+    for PosX = 74 to 73 step -1
+        gosub Calculate_Blocks          
+        gosub Display_Blocks
+    Next PosX
+    gosub Display_ADC
+    High Lcd_CS1 : High Lcd_CS2
+    Lower = 0
+    return
+
+Display_Voltage_2:
+    Lower = 1
+    High Lcd_CS2 : LOW Lcd_CS1
+    for PosX = 71 to 0 step -1
+        gosub Calculate_Blocks          
+        gosub Display_Blocks
+        Time = Time + 1
+    Next PosX
+    High Lcd_CS1 : High Lcd_CS2
+    Lower = 0
+    return
+    
+Display_Voltage_3:
+    for Time = 71 to 0 step -1
+        Result_Array[Time+1] = Result_Array[Time]
+    Next Time
+    return
+
+'-------------------------------------------------------------------------------
+Calculate_Blocks:  
+    If Result_Array[Time] < 102 then
+        Result_Array[Time] = 102
+    endif
+    Offset_tot = (Result_Array[Time] - 100) / 10 
+    Block_nr_tot = (((Result_Array[Time] - 100) - Offset_tot * 10) * 8) / 10   
+    return
+
+'-------------------------------------------------------------------------------
+Display_ADC:
+        LcdStr(0) = Result dig 2
+        LcdStr(1) = Result dig 1  
+        LcdStr(2) = Result dig 0
+        PosX=30:PosY=5:Gosub Lcd_GotoXY
+        if LcdStr(0) = 0 then LcdStr(0) = 32 
+        Lcd_Data=LcdStr(0)
+        Gosub Lcd_SentChar
+        Lcd_Data=LcdStr(1)
+        Gosub Lcd_SentChar
+        high Lcd_DC
+        Lcd_Data= $80: Gosub Lcd_SentByte
+        Lcd_Data= $00: Gosub Lcd_SentByte
+        Lcd_Data=LcdStr(2)
+        Gosub Lcd_SentChar
+        Lcd_Data=86             '118
+        Gosub Lcd_SentChar             
+        return
+
+'-------------------------------------------------------------------------------
+Display_Blocks:
+    IF Offset_tot < 1 then
+            PosY=4:Gosub Lcd_GotoXY
+            lcd_data = Block_nr_tot
+            gosub Send_Block
+        else 
+            for TEMP = 0 to (Offset_tot - 1)
+                PosY=(4 - TEMP):Gosub Lcd_GotoXY     
+                lcd_data = 8
+                gosub Send_Block
+            next TEMP
+    endif
+    
+    if Offset_tot > 0 and Offset_tot < 5 then
+        PosY=(4 - Offset_tot ):Gosub Lcd_GotoXY
+        lcd_data = Block_nr_tot
+        gosub Send_Block 
+    endif
+
+    for TEMP = (Offset_tot +1 ) to 4
+        PosY=(4-TEMP):Gosub Lcd_GotoXY                
+        lcd_data = 0
+        gosub Send_Block
+    next TEMP
+    return
+    
+'-------------------------------------------------------------------------------            
+Send_Block:    
+    sELECT CASE lcd_data
+        Case 0              
+            FC(0)=$00
+        Case 1
+            FC(0)=$80
+        Case 2
+            FC(0)=$C0
+        Case 3                  
+            FC(0)=$E0
+        Case 4
+            FC(0)=$F0
+        Case 5
+            FC(0)=$F8
+        Case 6
+            FC(0)=$FC
+        Case 7
+            FC(0)=$FE
+        Case 8                   
+            FC(0)=$FF
+    end SELECT
+    gosub Write_LCD_One
+return

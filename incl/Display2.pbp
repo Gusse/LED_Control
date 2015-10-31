@@ -1,0 +1,59 @@
+Display2_start:
+    Low Lcd_CS2 : High Lcd_CS1 
+    for TEMP=0 to 6                                 'Pystyviiva
+        PosX=42:PosY=TEMP:Gosub Lcd_GotoXY
+        FC(0)=$FF:Gosub Write_Lcd_One
+    next TEMP
+    
+    PosX=0:PosY=3:Gosub Lcd_GotoXY                  'Vaakaviiva
+    for TEMP=0 to 13
+            FC(0)=$8:Gosub Write_Lcd_One
+            FC(0)=$8:Gosub Write_Lcd_One
+            FC(0)=$8:Gosub Write_Lcd_One
+            FC(0)=$8:Gosub Write_Lcd_One
+            FC(0)=$8:Gosub Write_Lcd_One
+            FC(0)=$8:Gosub Write_Lcd_One
+    next TEMP
+    
+    PosX=42:PosY=3:Gosub Lcd_GotoXY
+    FC(0)=$FF:Gosub Write_Lcd_One
+    
+    PosX=10:PosY=1:Gosub Lcd_GotoXY                 'Ilma
+        Lcd_Data=73:Gosub Lcd_SentChar
+        Lcd_Data=108:Gosub Lcd_SentChar
+        Lcd_Data=109:Gosub Lcd_SentChar
+        Lcd_Data=97:Gosub Lcd_SentChar
+    PosX=10:PosY=4:Gosub Lcd_GotoXY                 'Vesi
+        Lcd_Data=86:Gosub Lcd_SentChar
+        Lcd_Data=101:Gosub Lcd_SentChar
+        Lcd_Data=115:Gosub Lcd_SentChar
+        Lcd_Data=105:Gosub Lcd_SentChar
+    PosX=50:PosY=1:Gosub Lcd_GotoXY                 'Hytti
+        Lcd_Data=72:Gosub Lcd_SentChar
+        Lcd_Data=121:Gosub Lcd_SentChar
+        Lcd_Data=116:Gosub Lcd_SentChar
+        Lcd_Data=116:Gosub Lcd_SentChar
+        Lcd_Data=105:Gosub Lcd_SentChar
+    PosX=50:PosY=4:Gosub Lcd_GotoXY                 'J‰‰kaappi
+        Lcd_Data=74:Gosub Lcd_SentChar
+        Lcd_Data=132:Gosub Lcd_SentChar
+        Lcd_Data=132:Gosub Lcd_SentChar
+        Lcd_Data=107:Gosub Lcd_SentChar
+        Lcd_Data=46:Gosub Lcd_SentChar    
+    PosX=23
+    gosub Display_start_sub
+    PosX=68
+    gosub Display_start_sub
+    High Lcd_CS1 : High Lcd_CS2
+    return
+    
+Display_start_sub:    
+    for TEMP = 2 to 5 step 3
+        PosY=TEMP:Gosub Lcd_GotoXY                  'Celsius
+        FC(0)=$02:Gosub Write_Lcd_One
+        FC(0)=$05:Gosub Write_Lcd_One
+        FC(0)=$02:Gosub Write_Lcd_One
+        FC(0)=$00:Gosub Write_Lcd_One
+        Lcd_Data=67:Gosub Lcd_SentChar
+    next TEMP
+    return

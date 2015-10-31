@@ -1,0 +1,5 @@
+Counter1_off = 103
+Counter1_on = 300       '200ms interrupt
+
+Counter2_off = 2065
+Counter2_on = 6000      '200ms interrupt

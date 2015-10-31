@@ -1,0 +1,42 @@
+'-------------------------------------------------------------------------------
+' LEDohjain veneeseen
+'-------------------------------------------------------------------------------
+' Include & Definition section
+'-------------------------------------------------------------------------------
+    DEFINE Simulation 0                 ' 0 = Normal, 1 = Simulation 1-Wire ROM
+    define Debugging 0                  ' 0 = Normal, 1 = Debugging
+        
+    define OSC 10
+    INCLUDE "incl\PIC16F876A_config.pbp"
+    INCLUDE "incl\DT_INTS-14.bas"
+    INCLUDE "incl\ReEnterPBP.bas"
+
+'----- Basics ---------------------------------
+    INCLUDE "incl\Definitions.pbp"        
+    INCLUDE "incl\Variables.pbp"
+    INCLUDE "incl\Display_contrast.pbp"
+    INCLUDE "incl\Counter_values.pbp"
+
+'----- Config Setups --------------------------
+    INCLUDE "incl\Config.pbp"
+
+'----- Inits and ADC Definitions --------------
+    INCLUDE "incl\Inits.pbp"
+    INCLUDE "incl\Interrupt.pbp"  
+    INCLUDE "incl\ADCIN.pbp"
+
+'-------------------------------------------------------------------------------
+' Main program
+'-------------------------------------------------------------------------------
+    INCLUDE "incl\Mainloop.pbp"
+    INCLUDE "incl\Mainloop1.pbp"
+    INCLUDE "incl\Mainloop2.pbp"      
+    INCLUDE "incl\Measure.pbp"
+    INCLUDE "incl\Light.pbp"  
+    INCLUDE "incl\LED_bar.pbp"
+    INCLUDE "incl\Timer.pbp"
+    INCLUDE "incl\Display_common.pbp"
+    INCLUDE "incl\Display.pbp"
+    INCLUDE "incl\Display2.pbp"
+    INCLUDE "incl\Temp.pbp"
+'-------------------------------------------------------------------------------      

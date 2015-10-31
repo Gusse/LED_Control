@@ -1,0 +1,228 @@
+Display_init:
+    High Lcd_Vcc
+    Pause 250
+    Low Lcd_CS1 : Low Lcd_CS2
+    Gosub Lcd_INIT
+    Gosub Lcd_Clear
+    High Lcd_CS1 : High Lcd_CS2
+    return
+
+'*******************************************************************************
+' LCD stuff
+'-------------------------------------------------------------------------------
+Lcd_Init:
+    Low Lcd_RST                                     'RESET LCD
+    pause 20
+    High Lcd_RST
+    Low Lcd_DC
+    Lcd_Data= $21: Gosub Lcd_SentByte		        'LCD EXTENDED COMMANDS
+    '--------------------------------      
+    Low Lcd_CS1 : high Lcd_CS2
+    Lcd_Data= Contrast1: Gosub Lcd_SentByte         'SET LCD Vop (CONTRAST)
+    Low Lcd_CS2 : high Lcd_CS1
+    Lcd_Data= Contrast2: Gosub Lcd_SentByte         'SET LCD Vop (CONTRAST)
+    Low Lcd_CS1 : Low Lcd_CS2
+    '--------------------------------      
+    Lcd_Data= $04: Gosub Lcd_SentByte               'SET TEMP COEFFICENT
+    Lcd_Data= $13: Gosub Lcd_SentByte		        'LCD BIAS MODE 1:48
+    Lcd_Data= $20: Gosub Lcd_SentByte		        'LCD STANDARD COMMANDS
+    Lcd_Data= $0c: Gosub Lcd_SentByte               'LCD IN NORMAL MODE
+    Return
+
+Lcd_Contrast_1:
+    Low Lcd_DC
+    Lcd_Data= Contrast1: Gosub Lcd_SentByte          
+    Return
+
+Lcd_Contrast_2:
+    Low Lcd_DC
+    Lcd_Data= Contrast2: Gosub Lcd_SentByte          
+    Return
+
+Lcd_Clear:
+    Gosub Lcd_Home
+    High Lcd_DC
+    For i=1 to 252
+    Lcd_Data=0:Gosub Lcd_SentByte	                
+    Lcd_Data=0:Gosub Lcd_SentByte                   
+    Next i
+    Return
+
+Lcd_Home:
+    PosX=0:PosY=0:Gosub Lcd_GotoXY
+    Return
+
+Lcd_GotoXY:
+    Low Lcd_DC
+    Lcd_Data=%01000000 | PosY :Gosub Lcd_SentByte	
+    Lcd_Data=%10000000 | PosX :Gosub Lcd_SentByte	
+    Return
+
+Lcd_SentByte:
+'    SHiftOUT Lcd_SDA , Lcd_CLK , MSBFIRST, [ Lcd_Data ]
+    Lcd_SDA = Lcd_Data.0(7)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(6)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(5)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(4)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(3)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(2)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(1)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = Lcd_Data.0(0)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Return
+
+Scr_Invert:                                     
+    Low Lcd_DC
+    Lcd_Data= %00001101:Gosub Lcd_SentByte          
+    return
+
+Scr_Blank:                                      
+    Lcd_Data= %00001000:Gosub Lcd_SentByte          
+    return
+
+Scr_Normal:                                     
+    Low Lcd_DC
+    Lcd_Data= %00001100:Gosub Lcd_SentByte
+    return
+'-------------------------------------------------------------------------------
+Lcd_SentChar:
+    sELECT CASE lcd_data
+        Case 0                   
+        	FC(0)=$3E:FC(1)=$51:FC(2)=$49:FC(3)=$45:FC(4)=$3E:FC(5)=$00 ' // 0
+        Case 1                   
+        	FC(0)=$00:FC(1)=$42:FC(2)=$7F:FC(3)=$40:FC(4)=$00:FC(5)=$00 ' // 1
+        Case 2                   
+        	FC(0)=$42:FC(1)=$61:FC(2)=$51:FC(3)=$49:FC(4)=$46:FC(5)=$00 ' // 2
+        Case 3                  
+        	FC(0)=$21:FC(1)=$41:FC(2)=$45:FC(3)=$4B:FC(4)=$31:FC(5)=$00 ' // 3
+        Case 4                   
+        	FC(0)=$18:FC(1)=$14:FC(2)=$12:FC(3)=$7F:FC(4)=$10:FC(5)=$00 ' // 4
+        Case 5                   
+        	FC(0)=$27:FC(1)=$45:FC(2)=$45:FC(3)=$45:FC(4)=$39:FC(5)=$00 ' // 5
+        Case 6                   
+        	FC(0)=$3C:FC(1)=$4A:FC(2)=$49:FC(3)=$49:FC(4)=$30:FC(5)=$00 ' // 6
+        Case 7                   
+        	FC(0)=$01:FC(1)=$71:FC(2)=$09:FC(3)=$05:FC(4)=$03:FC(5)=$00 ' // 7
+        Case 8                   
+        	FC(0)=$36:FC(1)=$49:FC(2)=$49:FC(3)=$49:FC(4)=$36:FC(5)=$00 ' // 8
+        Case 9                   
+        	FC(0)=$06:FC(1)=$49:FC(2)=$49:FC(3)=$29:FC(4)=$1E:FC(5)=$00 ' // 9
+        Case 32                   
+        	FC(0)=$00:FC(1)=$00:FC(2)=$00:FC(3)=$00:FC(4)=$00:FC(5)=$00 ' // sp
+        Case 45                   
+            FC(0)=$10:FC(1)=$10:FC(2)=$10:FC(3)=$10:FC(4)=$10:FC(5)=$00 ' // -
+        Case 46                   
+            FC(0)=$00:FC(1)=$60:FC(2)=$60:FC(3)=$00:FC(4)=$00:FC(5)=$00 ' // .
+        Case 67                   
+        	FC(0)=$3E:FC(1)=$41:FC(2)=$41:FC(3)=$41:FC(4)=$22:FC(5)=$00 ' // C
+        Case 71                   
+        	FC(0)=$3E:FC(1)=$41:FC(2)=$49:FC(3)=$49:FC(4)=$7A:FC(5)=$00 ' // G
+        Case 72                   
+        	FC(0)=$7F:FC(1)=$08:FC(2)=$08:FC(3)=$08:FC(4)=$7F:FC(5)=$00 ' // H
+        Case 73                   
+        	FC(0)=$00:FC(1)=$41:FC(2)=$7F:FC(3)=$41:FC(4)=$00:FC(5)=$00 ' // I
+        Case 74                   
+        	FC(0)=$20:FC(1)=$40:FC(2)=$41:FC(3)=$3F:FC(4)=$01:FC(5)=$00 ' // J
+        Case 86                   
+        	FC(0)=$1F:FC(1)=$20:FC(2)=$40:FC(3)=$20:FC(4)=$1F:FC(5)=$00 ' // V
+        Case 97                   
+            FC(0)=$20:FC(1)=$54:FC(2)=$54:FC(3)=$54:FC(4)=$78:FC(5)=$00 ' // a
+        Case 101                   
+            FC(0)=$38:FC(1)=$54:FC(2)=$54:FC(3)=$54:FC(4)=$18:FC(5)=$00 ' // e
+        Case 104
+        	FC(0)=$7F:FC(1)=$08:FC(2)=$04:FC(3)=$04:FC(4)=$78:FC(5)=$00 ' // h
+        Case 105                   
+            FC(0)=$00:FC(1)=$44:FC(2)=$7D:FC(3)=$40:FC(4)=$00:FC(5)=$00 ' // i
+        Case 107                   
+            FC(0)=$7F:FC(1)=$10:FC(2)=$28:FC(3)=$44:FC(4)=$00:FC(5)=$00 ' // k
+        Case 108                   
+            FC(0)=$00:FC(1)=$41:FC(2)=$7F:FC(3)=$40:FC(4)=$00:FC(5)=$00 ' // l
+        Case 109                   
+            FC(0)=$7C:FC(1)=$04:FC(2)=$18:FC(3)=$04:FC(4)=$78:FC(5)=$00 ' // m
+        Case 115                   
+            FC(0)=$48:FC(1)=$54:FC(2)=$54:FC(3)=$54:FC(4)=$20:FC(5)=$00 ' // s
+        Case 116                   
+            FC(0)=$04:FC(1)=$3F:FC(2)=$44:FC(3)=$40:FC(4)=$20:FC(5)=$00 ' // t
+        Case 118	
+        	FC(0)=$1C:FC(1)=$20:FC(2)=$40:FC(3)=$20:FC(4)=$1C:FC(5)=$00 ' // v
+        Case 121                    
+            FC(0)=$0C:FC(1)=$50:FC(2)=$50:FC(3)=$50:FC(4)=$3C:FC(5)=$00 ' // y
+        Case 132                    
+            FC(0)=$22:FC(1)=$54:FC(2)=$54:FC(3)=$54:FC(4)=$3A:FC(5)=$00 ' // ä
+    end SELECT
+    if Lower = 1 then
+        FC(0)=2*FC(0):FC(1)=2*FC(1):FC(2)=2*FC(2):FC(3)=2*FC(3):FC(4)=2*FC(4):FC(5)=2*FC(5)
+    endif
+        
+Write_LCD:  
+    High Lcd_DC
+    Lcd_SDA = FC.0(7)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(6)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(5)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(4)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(3)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(2)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(1)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(0)  : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Lcd_SDA = FC.0(15) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(14) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(13) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(12) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(11) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(10) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(9)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(8)  : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Lcd_SDA = FC.0(23) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(22) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(21) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(20) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(19) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(18) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(17) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(16) : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Lcd_SDA = FC.0(31) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(30) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(29) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(28) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(27) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(26) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(25) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(24) : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Lcd_SDA = FC.0(39) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(38) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(37) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(36) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(35) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(34) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(33) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(32) : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Lcd_SDA = FC.0(47) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(46) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(45) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(44) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(43) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(42) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(41) : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(40) : Lcd_CLK = 1 : Lcd_CLK = 0
+
+    Low Lcd_DC
+    Return
+
+Write_LCD_One:
+    High Lcd_DC
+    Lcd_SDA = FC.0(7)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(6)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(5)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(4)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(3)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(2)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(1)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Lcd_SDA = FC.0(0)  : Lcd_CLK = 1 : Lcd_CLK = 0
+    Low Lcd_DC
+    Return
+
+'*******************************************************************************      

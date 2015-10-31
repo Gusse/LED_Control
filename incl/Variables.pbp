@@ -1,0 +1,76 @@
+    Execute1            var bit
+    Execute2            var bit
+    Execute3            var bit
+    Execute4            var bit
+    Execute5            var bit    
+    Counter             var word
+    Counter1            var word
+    Counter2            var Word
+    Counter3            var byte
+    Counter4            var byte
+    Counter5            var byte
+    Counter6            var byte    
+    Counter5_enable     var byte
+    Enable_Voltage          var bit
+    Execute_Enable_Voltage  var bit
+
+    adval               var byte
+    adval_1             var byte
+    adval_2             var byte			               
+    dutycycle           var byte			               
+    dutycycle_out       var byte
+    Temp                VAR BYTE
+
+    Temp1               VAR BYTE
+    Temp2               VAR BYTE
+    Temp3               VAR BYTE
+    Temp4               VAR BYTE
+    Temp1_old           VAR BYTE
+    Temp2_old           VAR BYTE
+    Temp3_old           VAR BYTE
+    Temp4_old           VAR BYTE
+
+    R_Temp              var word
+    DS18B20_9bit        CON %00011111   ' 93.75ms, 0.5°C
+    NEG                 var bit
+    NEG1                var bit
+    NEG2                var bit
+    NEG3                var bit
+    NEG4                var bit
+    Busy                var bit
+
+    counter_adval       var byte
+    Delay               VAR BYTE
+    wsave               VAR BYTE $70 SYSTEM
+    LED_Timer_Stopped   var bit
+    Counter_value       var word
+    Dead_SW             var bit
+    Time                var byte
+    Result_Array        var BYTE [73] $1A0
+    Result              var byte
+    
+    Voltage             var byte
+    Offset_tot          var byte
+    Block_nr_tot        var byte
+    PosX                var Byte
+    PosY                var Byte
+    FC                  var Byte [6]
+    LcdStr              var Byte [3]
+    Lcd_Data            var Byte
+    Contrast1           var byte
+    Contrast2           var byte
+    i                   var Byte
+    
+    Update              VAR bit
+    
+    Up_next             var bit
+    Down_next           var bit
+    
+    Counter1_off        var word
+    Counter1_on         var word        
+    Counter2_off        var word
+    Counter2_on         var word
+    
+    Lower               var bit
+    
+    dummy               var word

@@ -1,0 +1,108 @@
+Mainloop2:
+    if T2CON.2 = 1 then
+        @ INT_DISABLE  TMR1_INT        
+        gosub StopTimer
+        gosub Stop_LED
+        Low LED
+        PortB = %11111110
+        do while Down = 0
+            pause 100
+        loop
+    endif
+    
+    Counter1 = Counter1 + 1
+    Counter2 = Counter2 + 1
+    
+'------------------------------------
+@  if (Simulation == 0)
+    nap 5
+@  endif
+@  if (Simulation == 1)
+    pause 500
+@  endif
+'------------------------------------
+    
+    if Up = 0 then
+        High LED
+        Counter3 = 0
+        gosub Meas_Vbat
+        gosub DeadSW
+        pause 750
+        if Up = 0 and Dead_SW = 1 then 
+            LED_Timer_Stopped = 0
+            if adval_2 = 18 then
+                adval_2 = 19
+            endif
+            if adval_2 = 255 then
+                adval_2 = 254
+            endif
+            gosub Meas           
+            gosub Init_LED
+            Counter = 0
+            @ INT_ENABLE  TMR1_INT
+            GOSUB StartTimer
+            Update = 1 
+        endif
+    endif
+    
+    if Down = 0 then
+        High LED
+        Counter3 = 0
+        Counter4 = 0
+        pause 2000
+        if Down = 0 then
+            gosub Read_Counter_Value
+            gosub Set_Timer_Value
+            gosub Read_Counter_Value
+        endif
+    endif
+    
+    if LED = 1 then
+        Counter3 = Counter3 + 1
+        if Counter3 = 30 then
+            LOW LED
+            Counter3 = 0
+        endif
+    endif
+'------------------------------------
+@  if (Simulation == 0)
+    if Counter1 = (Counter1_off - 4) then
+        gosub Temp_init
+    endif
+    
+    if Counter1 = Counter1_off then               'NAP 5 = 0,576s
+        Counter1 = 0
+        gosub Meas_Vbat
+        gosub Temp_meas
+        gosub Display_Temperature
+        gosub Display_Voltage_1
+    endif
+    if Counter2 = Counter2_off then         
+        Counter2 = 0
+        gosub Meas_Vbat
+        Gosub Display_Voltage_2
+        Gosub Display_Voltage_3
+    endif
+@  endif
+ 
+@  if (Simulation == 1)
+    if Counter1 = 116 then
+        gosub Temp_init
+    endif
+    
+    if Counter1 = 120 then               'pause 500ms
+        Counter1 = 0
+        gosub Meas_Vbat
+        gosub Temp_meas
+        gosub Display_Temperature
+        gosub Display_Voltage_1
+    endif
+    if Counter2 = 2400 then
+        Counter2 = 0
+        gosub Meas_Vbat
+        Gosub Display_Voltage_2
+        Gosub Display_Voltage_3
+    endif
+@  endif
+'------------------------------------ 
+Return

@@ -1,0 +1,51 @@
+Mainloop1:
+    if Execute1 = 1 then
+        gosub Temp_init
+        Execute1 = 0
+    endif
+
+    if Execute2 = 1 then     
+        gosub Temp_meas
+        gosub Display_Temperature
+        Execute2  = 0 
+    endif
+    
+    if Execute5 = 1 then
+        Execute5  = 0
+        gosub Display_Voltage_1
+    endif
+        
+    if Execute3 = 1 then
+        Execute3  = 0
+        Enable_Voltage = 1
+    endif
+    
+    if Execute_Enable_Voltage = 1 then    
+        Gosub Display_Voltage_2
+        Gosub Display_Voltage_3
+        Execute_Enable_Voltage = 0
+    endif
+
+    if Execute4 = 1 then
+        Low LED
+        PortB = %11111110
+        Execute4  = 0
+    endif
+        
+    If Update = 1 then
+        if adval_2 = 255 then
+            PortB = %11111010
+            pause 100
+        endif
+        if adval_2 = 18 then
+            PortB = %00000000
+            pause 100
+        endif
+        gosub LED_bar
+        gosub Meas
+        Update = 0
+        Counter = 0
+        Counter5 = 0
+        Counter5_enable = 1      
+    endif
+return

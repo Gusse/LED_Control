@@ -1,0 +1,5 @@
+Contrast1 = $BF 'BD     'Voltage 
+Contrast2 = $B6' B8     'Temperature   
+
+'Contrast1 = $C0     '$C0 = 5V(new 3310), $D1 = 5V(old 3310), $CE = 3.3V (i.e 8210)    
+'Contrast2 = $D1     '$C0 = 5V(new 3310), $D1 = 5V(old 3310), $CE = 3.3V (i.e 8210)   

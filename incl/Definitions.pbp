@@ -1,0 +1,37 @@
+'PIC16F876A                _________
+'                [MCLR] ->| MCLR B7 |-> LED_4, [PGD = Data]
+'                  VBAT ->| A0   B6 |-> LED_6, [PGC = Clock]
+'           Power_1Wire <-| A1   B5 |-> LED_1 
+'		         Wire_1 <-| A2   B4 |-> LED_2  
+'               Lcd_VCC <-| A3   B3 |-> LED_3, [PGM, not in use]
+'               On / Up ->| A4   B2 |-> LED_7 
+'			 Off / Down ->| A5   B1 |-> LED_5  
+'			        GND - |      B0 |-> 
+'			       OSC1 - |         | - VDD
+'			       OSC2 - |         | - GND
+'		        Lcd_CS1 <-|C0    C7 |-> Lcd_RST     
+'               Lcd_SDA <-|C1    C6 |-> Lcd_DC
+'            LED (HPWM) <-|C2    C5 |-> Lcd_CLK
+'		            LED <-|C3    C4 |-> Lcd_CS2
+'			              |_________|
+'
+'   PortA.4 is Open Drain IO, need external pull-up
+'
+'B1 = 8 = LED5
+'B2 = 10 = LED7
+'B3 = 6 = LED3
+'B4 = 4 = LED2
+'B5 = 2 = LED1
+'B6 = 9 = LED6
+'B7 = 7 = LED4
+
+'LCD module pinout
+'9 = Lcd_VCC    PortA.3
+'8 = GND        GND
+'7 = Lcd_CS1    PortC.0
+'6 = Lcd_RST    PortC.7
+'5 = Lcd_DC     PortC.6
+'4 = Lcd_SDA    PortC.1
+'3 = Lcd_CLK    PortC.5
+'2 = Lcd_CS2    PortC.4
+'1 = LED        PortC.3

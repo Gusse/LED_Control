@@ -1,0 +1,131 @@
+Temp_start:
+        High Power_1Wire        '1_Wire Power ON
+        pause 500
+        do 
+            OWOUT Wire_1, 1, [$55,$4E,0,0,DS18B20_9bit]
+            gosub Temp_init
+Temp_start_sub:
+            pause 10
+            OWIN Wire_1, 4, [Busy]      ' Check for still busy converting
+            IF Busy = 0 THEN Temp_start_sub  ' Still busy?, then loop
+            gosub Temp_meas
+            Temp = Temp + 1
+            IF Temp1 <> 85 and Temp2 <> 85 and Temp3 <> 85 and Temp4 <> 85 THEN EXIT
+        loop UNTIL Temp > 100
+        return
+
+Temp_init:
+        OWOUT Wire_1, 1, [$CC,$44]
+        return
+
+Temp_meas:
+@  if (Simulation == 0)
+        OWOUT   Wire_1, 1, [$55,$28,$FF,$27,$54,$4C,$04,$00,$86,$BE]    'Old Temp3
+@  endif
+@  if (Simulation == 1)
+        OWOUT   Wire_1, 1, [$55,$28,$13,$B4,$4B,$01,$00,$00,$93,$BE]    'Old Temp3
+@  endif
+        OWIN    Wire_1, 2, [R_Temp.Lowbyte, R_Temp.Highbyte]      
+        Temp1 = (R_Temp & $0FF0) >> 4
+        If Temp1 > 128 then
+                Temp1 = (255 - Temp1) + 1
+                NEG1 = 1
+            else
+                NEG1 = 0
+        endif
+                                       
+@  if (Simulation == 0)
+        OWOUT   Wire_1, 1, [$55,$28,$FF,$E5,$20,$4A,$04,$00,$50,$BE]
+@  endif
+@  if (Simulation == 1)
+        OWOUT   Wire_1, 1, [$55,$28,$E9,$89,$5F,$01,$00,$00,$70,$BE]
+@  endif
+        OWIN    Wire_1, 2, [R_Temp.Lowbyte, R_Temp.Highbyte]      
+        Temp2 = (R_Temp & $0FF0) >> 4
+        If Temp2 > 128 then
+                Temp2 = (255 - Temp2) + 1
+                NEG2 = 1
+            else
+                NEG2 = 0
+        endif                               
+
+@  if (Simulation == 0)
+        OWOUT   Wire_1, 1, [$55,$28,$FF,$EE,$19,$4A,$04,$00,$FB,$BE]    'Old Temp1
+@  endif
+@  if (Simulation == 1)
+        OWOUT   Wire_1, 1, [$55,$28,$96,$3A,$4F,$01,$00,$00,$F5,$BE]    'Old Temp1
+@  endif
+        OWIN    Wire_1, 2, [R_Temp.Lowbyte, R_Temp.Highbyte]      
+        Temp3 = (R_Temp & $0FF0) >> 4
+        If Temp3 > 128 then
+                Temp3 = (255 - Temp3) + 1
+                NEG3 = 1
+            else
+                NEG3 = 0
+        endif                              
+
+@  if (Simulation == 0)
+        OWOUT   Wire_1, 1, [$55,$28,$FF,$15,$44,$4E,$04,$00,$F6,$BE]
+@  endif
+@  if (Simulation == 1)
+        OWOUT   Wire_1, 1, [$55,$28,$7C,$B3,$4B,$01,$00,$00,$25,$BE]
+@  endif
+        OWIN    Wire_1, 2, [R_Temp.Lowbyte, R_Temp.Highbyte]      
+        Temp4 = (R_Temp & $0FF0) >> 4
+        If Temp4 > 128 then
+                Temp4 = (255 - Temp4) + 1
+                NEG4 = 1
+            else
+                NEG4 = 0
+        endif                              
+        return
+
+Display_Temperature:
+        High Lcd_CS1 : Low Lcd_CS2
+        Temp1_old = Temp1
+        Temp = Temp1
+        NEG = NEG1
+        PosX=5:PosY=2
+        gosub Display_Temperature_sub
+        
+        Temp2_old = Temp2
+        Temp = Temp2
+        NEG = NEG2
+        PosX=5:PosY=5
+        gosub Display_Temperature_sub
+        
+        Temp3_old = Temp3
+        Temp = Temp3
+        NEG = NEG3
+        PosX=50:PosY=2
+        gosub Display_Temperature_sub
+        
+        Temp4_old = Temp4
+        Temp = Temp4
+        NEG = NEG4
+        PosX=50:PosY=5
+        gosub Display_Temperature_sub 
+        High Lcd_CS1 : High Lcd_CS2    
+        return
+
+Display_Temperature_sub:
+        LcdStr(0) = Temp dig 2
+        LcdStr(1) = Temp dig 1  
+        LcdStr(2) = Temp dig 0
+        if LcdStr(0) = 0 and LcdStr(1) = 0 then LcdStr(1) = 32
+        if LcdStr(0) = 0 then LcdStr(0) = 32
+        IF NEG = 1 then
+            if LcdStr(1) = 32 then
+                    LcdStr(1) = 45
+                else
+                    LcdStr(0) = 45
+            endif
+        endif
+        Gosub Lcd_GotoXY
+        Lcd_Data=LcdStr(0)
+        Gosub Lcd_SentChar
+        Lcd_Data=LcdStr(1)
+        Gosub Lcd_SentChar
+        Lcd_Data=LcdStr(2)
+        Gosub Lcd_SentChar
+        return

@@ -1,0 +1,210 @@
+Interrupt_Handler:
+ASM
+INT_LIST  macro    ; IntSource,        Label,  Type, ResetFlag?
+        INT_Handler   TMR1_INT,   ReloadTMR1,   ASM,  no    ; MUST be first
+        INT_Handler   TMR1_INT,   _T1handler,   PBP,  yes
+    endm
+    INT_CREATE               ; Creates the interrupt processor
+ENDASM
+
+    @Freq       = 5                   ; Frequency of Interrupts in Hz
+    @Prescaler  = 8                   ; Timers Prescaler setting
+    T1CON = $30                       ; $30 = Prescaler 1:8, TMR1 OFF
+Return
+
+'-------------------------------------------------------------------------------      
+;____This routine is Called on each TMR1 Interrupt____________________________
+T1handler:
+@  if (Debugging == 1)
+    high PortB.0
+@  endif 
+    gosub Meas
+    gosub Light_CTRL
+    gosub Meas_Vbat
+
+    Counter1 = Counter1 + 1
+    Counter2 = Counter2 + 1
+    Counter6 = Counter6 + 1    
+
+    if Counter5_enable = 1 then
+        Counter5 = Counter5 + 1      
+        if Counter5 = 75 then
+            Execute4 = 1
+            Counter5 = 0
+            Counter5_enable = 0 
+        endif
+    endif
+    
+    if Counter1 = (Counter1_on - 10) then
+        Execute1 = 1 
+    endif
+
+    if Counter1 = Counter1_on then
+        Counter1 = 0
+        Execute2 = 1 
+    endif
+    
+    IF Counter2 = Counter2_on then
+        Counter2 = 0
+        Execute3 = 1
+    endif
+    
+    IF Counter6 = 5 then
+        Counter6 = 0
+        Execute5 = 1
+    endif    
+
+    if Enable_Voltage = 1 then
+       Execute_Enable_Voltage = 1
+       Enable_Voltage = 0
+    endif
+
+    if Down_next = 1 and Down = 1 then
+        Down_next = 0
+    endif
+
+    if Down = 0 then
+        High LED
+        Counter5 = 0
+        Counter5_enable = 1
+        If Down_next = 1 then
+            if adval_2 < 19 then
+                    adval_2 = 18
+                    Counter3 = Counter3 + 1
+                    if Counter3 =6 then
+                        LED_Timer_Stopped = 1
+                        Counter3 = 0
+                    endif
+                else
+                    IF adval_2 < 28 then
+                            adval_2 = 18
+                        else
+                            adval_2 = adval_2 - 10
+                    endif            
+            endif
+        Update = 1
+        endif
+        Down_next = 1
+    endif
+
+    IF Up_next = 1 and Up = 1 then
+        Up_next = 0
+    endif
+    
+    If Up = 0 Then
+        High LED
+        Counter5 = 0
+        Counter5_enable = 1
+        If Up_next = 1 then
+            if adval_2 > 244 then
+                    adval_2 = 255
+                else
+                    adval_2 = adval_2 + 10            
+            endif
+            Update = 1
+        endif
+        Up_next = 1
+    endif
+    
+    IF Counter3 > 0 and Up = 1 and Down = 1 then
+        Counter3 = 0
+    endif
+
+    if Counter_value > 0 then   
+        Counter = Counter + 1
+        if Counter = Counter_value then 
+            gosub Stop_LED
+            Counter = 0
+            @ INT_DISABLE  TMR1_INT        
+            gosub StopTimer
+            LED_Timer_Stopped = 1
+        endif
+    endif 
+
+@  if (Debugging == 1)
+    low PortB.0
+@  endif 
+    
+@ INT_RETURN
+
+;---[TMR1 reload - interrupt handler]-----------------------------------------
+ASM                               ; Calculate Timer Reload Constant
+ReloadInst  = 8                   ; # of Intructions used to reload timer
+  if ((Prescaler == 1)||(Prescaler == 2)||(Prescaler == 4)||(Prescaler == 8))
+MaxCount    = 65536 + (ReloadInst / Prescaler)
+TimerReload = MaxCount - (OSC*1000000/4/Prescaler/Freq)
+    if ((TimerReload < 0) || (TimerReload > (65535-ReloadInst)))
+        error Invalid Timer Values - check "OSC", "Freq" and "Prescaler"
+    endif
+  else
+      error Invalid Prescaler
+  endif
+ENDASM
+
+@Timer1 = TMR1L                   ; map timer registers to a word variable
+Timer1       VAR WORD EXT
+TimerReload  CON EXT              ; Get the External Constant
+TMR1ON       VAR T1CON.0          ; Alias the Timers ON/OFF bit
+
+;---Reload Timer1------
+ASM
+ReloadTMR1
+    MOVE?CT  0, T1CON, TMR1ON     ;  1     stop timer
+    MOVLW    LOW(TimerReload)     ;  1     Add TimerReload to the 
+    ADDWF    TMR1L,F              ;  1     value in Timer1
+    BTFSC    STATUS,C             ;  1/2
+    INCF     TMR1H,F              ;  1
+    MOVLW    HIGH(TimerReload)    ;  1
+    ADDWF    TMR1H,F              ;  1
+    MOVE?CT  1, T1CON, TMR1ON     ;  1     start timer
+  INT_RETURN
+ENDASM
+
+;---Start/Stop controls -----
+StartTimer:
+    Counter = 0
+@  if (Simulation == 0)
+    dummy = Counter1*Counter1_on
+    Counter1 = DIV32 Counter1_off
+    'Counter1 = (Counter1*Counter1_on)/Counter1_off
+    
+    dummy = Counter2*Counter2_on
+    Counter2 = div32 Counter2_off
+    'Counter2 = (Counter2*Counter2_on)/Counter2_off
+@  endif
+@  if (Simulation == 1)
+    dummy = Counter1*Counter1_on
+    Counter1 = DIV32 120
+    'Counter1 = (Counter1*Counter1_on)/120      
+
+    dummy = Counter2*Counter2_on
+    Counter2 = div32 2400
+    'Counter2 = (Counter2*Counter2_on)/2400     
+@  endif
+StartTimer_sub:
+    Timer1  = TimerReload         ; Load Timer
+    TMR1ON = 1                    ; start timer
+RETURN
+
+StopTimer:
+    TMR1ON = 0                    ; stop timer
+@  if (Simulation == 0)
+    dummy = Counter1*Counter1_off
+    Counter1 = div32 Counter1_on
+    'Counter1 = (Counter1*Counter1_off)/Counter1_on
+
+    dummy = Counter2*Counter2_off
+    Counter2 = div32 Counter2_on 
+    'Counter2 = (Counter2*Counter2_off)/Counter2_on
+@  endif
+@  if (Simulation == 1)
+    dummy = Counter1*120
+    Counter1 = div32 Counter1_on
+    'Counter1 = (Counter1*120)/Counter1_on       
+    
+    dummy = Counter2*2400
+    Counter2 = div32 Counter2_on
+    'Counter2 = (Counter2*2400)/Counter2_on    
+@  endif
+    Counter = 0
+RETURN

@@ -1,0 +1,38 @@
+Light_CTRL:
+    dutycycle = (adval_1 * adval_2)/255
+    if dutycycle <> dutycycle_out then
+        if dutycycle > dutycycle_out then
+                for Temp = dutycycle_out to dutycycle STEP 1
+                    Hpwm 1, Temp, 611
+                next Temp
+            else
+                for Temp = dutycycle_out to dutycycle step -1
+                    Hpwm 1, Temp, 611
+                next Temp
+        ENDIF       
+        dutycycle_out = dutycycle
+    endif
+return
+    
+Init_LED:
+    Hpwm 1, 0, 611
+    T2CON.2 = 1
+    gosub LED_bar
+    
+    for Temp = 0 to adval_2    
+        dutycycle = (adval_1 * Temp)/255
+        Hpwm 1, dutycycle, 611
+        pause 10
+    next Temp
+    dutycycle_out = dutycycle
+return
+    
+Stop_LED:
+    for dutycycle = dutycycle_out to 0 step -1   
+        Hpwm 1, dutycycle, 611
+        pause 10
+    next dutycycle
+    PortC.2 = 0
+    CCP1CON = $00
+    T2CON.2 = 0
+return

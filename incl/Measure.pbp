@@ -1,0 +1,35 @@
+Meas_Vbat:
+    adcin 0, adval
+    return
+
+DeadSW:
+    if adval > 181 then
+            Dead_SW = 1
+        else
+            Dead_SW = 0
+    endif
+    return
+
+Meas:
+    If adval < 178 then
+            LED_Timer_Stopped = 1                 
+        else 
+            If adval < 187 then                 
+                    adval_1 = 254         
+                else
+                    if adval < 196 then
+                            adval_1 = 1216 - ((52 * adval)/10)              
+                        else
+                            If adval < 213 then
+                                    adval_1 = 863 - ((34 * adval)/10)      
+                                else
+                                    If adval < 230 then 
+                                            adval_1 = 589 - ((21 * adval)/10)
+                                        else
+                                            adval_1 = 393 - ((125 * adval)/100)
+                                    endif 
+                            endif    
+                    endif
+            endif
+    endif
+    return

@@ -1,0 +1,18 @@
+;----[16F876A Hardware Configuration]-------------------------------------------
+#IF __PROCESSOR__ = "16F876A"
+  #DEFINE MCU_FOUND 1
+#CONFIG
+  __config  _HS_OSC & _WDT_ON & _PWRTE_ON & _BODEN_OFF & _LVP_OFF & _CPD_OFF & _WRT_OFF & _DEBUG_OFF & _CP_OFF
+#ENDCONFIG
+
+#ENDIF
+
+;----[Verify Configs have been specified for Selected Processor]----------------
+;       Note: Only include this routine once, after all #CONFIG blocks
+#IFNDEF MCU_FOUND
+  #ERROR "No CONFIGs found for [" + __PROCESSOR__ +"]"
+#ENDIF
+'------------------------old----------------------------------------------------
+'#CONFIG
+'        __CONFIG _HS_OSC & _WDT_ON & _LVP_OFF & _CP_OFF & _PWRTE_ON & _BOREN_OFF
+'#ENDCONFIG

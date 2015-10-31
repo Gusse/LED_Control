@@ -1,0 +1,64 @@
+Init:
+    TRISA = %00110001
+    TRISB = %00000000
+    TRISC = %00000000
+    PortB = %11111110
+    PortC = %00000000
+    ADCON1 = %00001110		' Set PORTA 0=Ana, 1&2&3&4&5=Dig
+    
+    High LED
+    gosub Meas_Vbat
+    Gosub Display_init
+    Gosub Display_start
+    Gosub Display2_start
+    
+    adval_2 = 127
+
+@  if (Simulation == 0)
+    write 255, 1
+@  endif
+@  if (Simulation == 1)
+    write 255, 0
+@  endif
+
+    gosub Meas    
+    gosub Init_LED   
+    gosub LED_bar
+    gosub Read_Counter_Value
+
+    gosub Temp_start
+    Temp1_old = Temp1
+    Temp2_old = Temp2
+    Temp3_old = Temp3
+    Temp4_old = Temp4 
+    gosub Display_Temperature 
+    
+    for Time = 0 to 71
+        Result_Array[Time] = 0
+    Next Time
+    
+    Execute1 = 0
+    Execute2 = 1
+    Execute3 = 1
+    Execute4 = 0
+    Execute5 = 1
+    Counter  = (Counter_value - 76)'0
+    Counter1 = 0
+    Counter2 = 0
+    Counter3 = 0
+    Counter4 = 0
+    Counter5 = 0
+    Counter6 = 0    
+    Counter5_enable = 1
+    Enable_Voltage = 0
+    Execute_Enable_Voltage = 0
+    Update = 0
+    Up_next = 0
+    Down_next = 0
+    LED_Timer_Stopped = 0
+    
+    gosub Interrupt_Handler
+    @ INT_ENABLE  TMR1_INT            ; enable Timer 1 interrupts    
+    GOSUB StartTimer_sub              ; Start the Timer
+
+    goto Mainloop

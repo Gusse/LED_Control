@@ -1,0 +1,48 @@
+Set_Timer_Value:
+    gosub LED_Status
+    
+    do while Up = 0 or Down = 0
+        pause 10
+    loop
+
+    do while Counter4 < 5
+        Counter4 = Counter4 + 1
+        if Up = 0 then
+            if Temp > 0 then
+                    Temp = Temp - 1
+                else
+                    Temp = 0
+            endif
+            Counter4 = 0
+        endif
+        If Down = 0 then
+            if Temp < 3 then
+                    Temp = Temp + 1
+                else
+                    Temp = 3
+            endif
+            Counter4 = 0
+        endif
+        gosub LED_Status
+        pause 1000
+    loop
+    
+    write 255, Temp
+    PortB = %11111110
+    pause 200    
+return
+
+LED_Status:
+    If Temp = 0 then PortB = %11111010
+    If Temp = 1 then PortB = %11111100
+    If Temp = 2 then PortB = %11110110    
+    If Temp = 3 then PortB = %11011110
+Return
+
+Read_Counter_Value:
+    read 255, Temp
+    IF Temp = 0 then counter_value = 0          'Disable
+    IF Temp = 1 then counter_value = 54000      ' 3h
+    IF Temp = 2 then counter_value = 36000      ' 2h
+    IF Temp = 3 then counter_value = 18000      ' 1h
+Return

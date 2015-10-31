@@ -1,0 +1,3 @@
+    DEFINE ADC_CLOCK 3      ' ADC clock source  (RC)
+    DEFINE ADC_BITS  8      ' ADCIN resolution  (Bits)
+    DEFINE ADC_SAMPLEUS 50  ' ADC sampling time (uSec)
